@@ -81,25 +81,25 @@ function getElementByXPath(xpath) {
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "startElementSelection") {
         const hostname = new URL(window.location.href).hostname;
+        startElementSelection();
 
+        // console.log(hostname)
         // Check local storage for saved XPath
-        browser.storage.local.get(hostname, (data) => {
-            const savedXPath = data[hostname];
-            if (savedXPath) {
-                // If XPath is found in storage, use it and send back the data
-                const element = getElementByXPath(savedXPath);
-                if (element) {
-                    const textContent = element.textContent.trim();
-                    // Send the data back
-                    browser.runtime.sendMessage({
-                        action: "elementData",
-                        data: { xpath: savedXPath, text: textContent }
-                    });
-                }
-            } else {
+        // browser.storage.local.get(hostname, (data) => {
+        //    const savedXPath = data[hostname];
+        //    if (savedXPath) {
+               // If XPath is found in storage, use it and send back the data
+        //        const element = getElementByXPath(savedXPath);
+        //        if (element) {
+        //            const textContent = element.textContent.trim();
+        //            // Send the data back
+        //            browser.runtime.sendMessage({
+        //                action: "elementData",
+        //                data: { xpath: savedXPath, text: textContent }
+        //            });
+        //        }
+        //    } else {
                 // If no XPath found in storage find it
                 startElementSelection();
-            }
-        });
-    }
-});
+        //    }
+        }});

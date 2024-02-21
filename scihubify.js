@@ -199,6 +199,7 @@ async function urlHandler(url, tabID) {
         return [nexusURL, scihubURL] || [null, null];
       } else {
         showNotification('Could not find DOI or ISBN.');
+        browser.tabs.sendMessage(tabID, { action: "startElementSelection" });
         return null;
       }
     }
@@ -339,8 +340,47 @@ if (browser.menus) {
   // pass
 }
 
+
+browser.runtime.onMessage.addListener( async (message, sender, sendResponse) => {
+  // Check if the message is the expected type
+  if (message.action === "elementData") {
+    // Process the received data
+    const xpath = message.data.xpath;
+    const text = message.data.text;
+
+    let cleanedText = text.replace(/(ISBN:|DOI:)/gi, '').trim();
+    console.log(cleanedText)
+
+    const doiMatch = cleanedText.match(doiRegex);
+    if (doiMatch) {
+      const [nexusURL, scihubURL] = await handlePDFUrl( doiMatch[0], true);
+      const isAvailableFromScihub = await checkScihub(scihubURL);
+      if (isAvailableFromScihub) {
+        openNewTab(scihubURL);
+      } else {
+        showNotification('PDF not available on Sci-hub, trying Nexus.');
+        openNewTab(nexusURL);
+      }
+    }
+  
+
+  // Test for ISBN
+  const isbnMatch = cleanedText.match(isbnRegex);
+  if (isbnMatch) {
+    const properURL = await handlePDFUrl(isbnMatch[0], false);
+    const finalURL = await openLibraryHandler(properURL);
+    if (finalURL) {
+        openNewTab(finalURL);
+      }
+    }
+  }})
+
 // listener for when the browser-action is clicked
 browser.browserAction.onClicked.addListener(main);
+ 
+
+
+
 
 // check updates
 function checkForUpdates() {
