@@ -11,6 +11,19 @@
       "scihubify.js"
     ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "elementSelectionScript.js"
+      ]
+    }
+  ],
+  "web_accessible_resources": [
+    "elementSelectionScript.js"
+  ],
   "browser_action": {
     "browser_style": true,
     "default_icon": "graduate-hat.png",
@@ -24,7 +37,9 @@
     "menus",
     "notifications"
   ],
-  "optional_permissions": ["menus"],
+  "optional_permissions": [
+    "menus"
+  ],
   "options_ui": {
     "page": "preferences.html"
   },
