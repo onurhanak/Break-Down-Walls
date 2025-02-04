@@ -107,6 +107,16 @@ const getISBNFromTab = async (tabId, script) => {
   }
 };
 
+const getDOIFromTab = async (tabId, script) => {
+  try {
+    let result = await browser.tabs.executeScript(tabId, { code: script });
+    return result;
+  } catch (error) {
+    console.error("Error executing content script:", error);
+    return false;
+  }
+};
+
 const getISBNFromURL = async (url) => {
   if (amazonRegex.test(url)) {
     const isbn = url.match(amazonRegex)[0].replace("dp/", "");
@@ -207,15 +217,21 @@ async function urlHandler(url, tabID) {
     const doi = await getDOIFromURL(url);
     if (doi) {
       const [nexusURL, scihubURL] = await handlePDFUrl(doi, true);
-      return [nexusURL, scihubURL] || [null, null];
+      return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
     } else {
       const scihubDOI = await fetchSciHubDOI(url);
       if (scihubDOI) {
         const [nexusURL, scihubURL] = await handlePDFUrl(scihubDOI, true);
-        return [nexusURL, scihubURL] || [null, null];
+        return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
       } else {
-        showNotification("Could not find DOI or ISBN.");
-        return null;
+        const pageDOI = await getDOIFromTab(tabID, scienceDirectScript);
+        if (Object.keys(pageDOI)[0] != 0) {
+          const [nexusURL, scihubURL] = await handlePDFUrl(pageDOI, true);
+          return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
+        } else {
+          showNotification("Could not find DOI or ISBN.");
+          return null;
+        }
       }
     }
   }
@@ -304,6 +320,17 @@ const goodreadsContentScript = `
   });
 
   isbn;
+`;
+
+const scienceDirectScript = `
+    const doiRegex = /\\b(10\\.\\d{4,9}\\/[-._;()/:A-Z0-9]+)\\b/gi;
+    const links = [...document.querySelectorAll("a[href]")];
+
+    const firstDOILink = links
+      .map((link) => link.href)
+      .find((href) => doiRegex.test(href)) || null;
+
+    firstDOILink;
 `;
 
 // content script to get ISBN from Google Books
