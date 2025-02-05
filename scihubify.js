@@ -248,9 +248,9 @@ async function checkScihub(scihubURL) {
   try {
     const response = await fetch(scihubURL);
 
-    // Check if the response status is 403
+    // Check if the response status is 403 (captcha)
     if (response.status === 403) {
-      showNotification("Complete Sci-hub captcha challenge and try again.");
+      showNotification("Complete Sci-hub captcha challenge.");
       return true;
     }
 

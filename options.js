@@ -35,7 +35,7 @@ const restoreOptions = async () => {
       ).checked = true;
     }
   } catch (error) {
-    console.log(`Error: ${error}`);
+    console.log(`Error restoring Sci-Hub mirror: ${error}`);
   }
 
   try {
@@ -46,7 +46,29 @@ const restoreOptions = async () => {
       ).checked = true;
     }
   } catch (error) {
-    console.log(`Error: ${error}`);
+    console.log(`Error restoring LibGen mirror: ${error}`);
+  }
+
+  try {
+    const { annasArchive } = await browser.storage.sync.get("annasArchive");
+    if (annasArchive !== undefined) {
+      document.querySelector("input[name='annas-archive']").checked =
+        annasArchive === "true";
+    }
+  } catch (error) {
+    console.log(`Error restoring Anna's Archive setting: ${error}`);
+  }
+
+  try {
+    const { openInTheCurrentTab } = await browser.storage.sync.get(
+      "openInTheCurrentTab",
+    );
+    if (openInTheCurrentTab !== undefined) {
+      document.querySelector("input[name='openInTheCurrentTab']").checked =
+        openInTheCurrentTab === "true";
+    }
+  } catch (error) {
+    console.log(`Error restoring 'Open in Current Tab' setting: ${error}`);
   }
 };
 
