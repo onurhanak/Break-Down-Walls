@@ -224,8 +224,15 @@ async function urlHandler(url, tabID) {
         const [nexusURL, scihubURL] = await handlePDFUrl(scihubDOI, true);
         return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
       } else {
-        const pageDOI = await getDOIFromTab(tabID, scienceDirectScript);
-        if (Object.keys(pageDOI)[0] != 0) {
+        const pageDOIArray = await getDOIFromTab(tabID, doiExtractorScript);
+        const pageDOI =
+          Array.isArray(pageDOIArray) && pageDOIArray.length > 0
+            ? pageDOIArray[0]
+            : null;
+
+        console.log("Extracted DOI:", pageDOI);
+
+        if (pageDOI) {
           const [nexusURL, scihubURL] = await handlePDFUrl(pageDOI, true);
           return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
         } else {
@@ -240,25 +247,34 @@ async function urlHandler(url, tabID) {
 async function checkScihub(scihubURL) {
   try {
     const response = await fetch(scihubURL);
+
+    // Check if the response status is 403
+    if (response.status === 403) {
+      showNotification("Complete Sci-hub captcha challenge and try again.");
+      return true;
+    }
+
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
     const saveBtn = doc.querySelector('button[onclick^="location.href=\'"]');
-    const captchaBtn = doc.querySelector("input#answer");
-    if (captchaBtn) {
-      // scihub asks for captcha
-      return true;
-    } else if (saveBtn) {
+
+    if (saveBtn) {
       var saveBtnHref = saveBtn.getAttribute("onclick").match(/'([^']+)'/)[1];
       saveBtnHref = "https://sci-hub.ru" + saveBtnHref;
       const saveBtnResponse = await fetch(saveBtnHref);
-      if (saveBtnResponse.status === 404) {
+
+      if (saveBtnResponse.status === 403) {
+        console.warn("Sci-Hub PDF link returned a 403 Forbidden error.");
+        return false;
+      } else if (saveBtnResponse.status === 404) {
         // Sci-Hub returned a 404 Not Found page, try Nexus instead
         return false;
       } else {
         return true;
       }
     }
+
     return false;
   } catch (error) {
     console.error("Error checking Sci-Hub:", error);
@@ -322,15 +338,31 @@ const goodreadsContentScript = `
   isbn;
 `;
 
-const scienceDirectScript = `
-    const doiRegex = /\\b(10\\.\\d{4,9}\\/[-._;()/:A-Z0-9]+)\\b/gi;
-    const links = [...document.querySelectorAll("a[href]")];
+const doiExtractorScript = `
 
-    const firstDOILink = links
-      .map((link) => link.href)
-      .find((href) => doiRegex.test(href)) || null;
+    const doiRegex = /10\\.\\d{4,9}\\/[-._;()/:A-Z0-9]+/gi;
 
-    firstDOILink;
+    function extractDOI() {
+        const links = [...document.querySelectorAll("a[href]")];
+
+        const firstDOILink = links
+            .map(link => link.href)
+            .find(href => doiRegex.test(href));
+
+        if (firstDOILink) {
+            return firstDOILink;
+        }
+
+        const textMatch = document.body.innerText.match(doiRegex);
+
+        if (textMatch && textMatch.length > 0) {
+            return textMatch[0];
+        }
+
+        return null;
+    }
+
+    extractDOI();
 `;
 
 // content script to get ISBN from Google Books
@@ -393,7 +425,7 @@ browser.commands.onCommand.addListener((command) => {
   }
 });
 
-// check updates
+/*
 function checkForUpdates() {
   // version URL
   const versionUrl =
@@ -416,6 +448,7 @@ function checkForUpdates() {
     );
 }
 
-// checkForUpdates();
+checkForUpdates();
 
-// setInterval(checkForUpdates, 86400000); // check for new version everyday
+setInterval(checkForUpdates, 86400000); // check for new version everyday
+*/
