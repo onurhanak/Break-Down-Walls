@@ -13,7 +13,7 @@
 
 This extension streamlines accessing and downloading scientific articles and books. Here's a breakdown of its features:
 
-**Scientific Articles:** Clicking the toolbar button or using the keyboard shortcut on an article page will open the article via a Sci-hub mirror or Nexus if Sci-hub doesn’t have it.
+**Scientific Articles:** Clicking the toolbar button or using the keyboard shortcut on an article page will open the article via a Sci-hub mirror. You can enable Nexus support in the preferences page to search the article there if Sci-hub does not have it.
 
 **Books on Amazon, Google Books, or Goodreads:** Pressing the toolbar button or using the keyboard shortcut searches for the book on Libgen or Anna's Archive, showing the search results.
 
