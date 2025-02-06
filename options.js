@@ -24,6 +24,10 @@ const saveOptions = (e) => {
     ? "true"
     : "false";
   browser.storage.sync.set({ openInTheCurrentTab: openInTheCurrentTabValue });
+
+  const useNexusCheckBox = document.querySelector("input[name='useNexus'");
+  const useNexusValue = useNexusCheckBox.checked ? "true" : "false";
+  browser.storage.sync.set({ useNexus: useNexusValue });
 };
 
 const restoreOptions = async () => {
@@ -69,6 +73,16 @@ const restoreOptions = async () => {
     }
   } catch (error) {
     console.log(`Error restoring 'Open in Current Tab' setting: ${error}`);
+  }
+
+  try {
+    const { useNexus } = await browser.storage.sync.get("useNexus");
+    if (useNexus !== undefined) {
+      document.querySelector("input[name='useNexus']").checked =
+        useNexus === "true";
+    }
+  } catch (error) {
+    console.log(`Error restoring 'Use Nexus' setting: ${error}`);
   }
 };
 
