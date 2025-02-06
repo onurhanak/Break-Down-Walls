@@ -293,7 +293,8 @@ async function run(url, tabID) {
       openNewTab(scihubURL);
     } else {
       const useNexus = await browser.storage.sync.get(["useNexus"]);
-      if (useNexus) {
+      console.log(useNexus);
+      if (useNexus === true) {
         showNotification("PDF not available on Sci-hub, trying Nexus.");
         openNewTab(nexusURL);
       } else {
