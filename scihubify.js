@@ -292,8 +292,8 @@ async function run(url, tabID) {
     if (isAvailableFromScihub) {
       openNewTab(scihubURL);
     } else {
-      showNotification("PDF not available on Sci-hub, trying Nexus.");
-      openNewTab(nexusURL);
+      showNotification("PDF not available on Sci-hub"); //, trying Nexus.");
+      // openNewTab(nexusURL);
     }
   } else {
     // it returned a single value, which means it's a goodreads, Google Books, or Amazon URL
