@@ -3,12 +3,12 @@ name: Format & Release
 on:
   push:
     branches:
-      - test-github-actions
+      - dev
 
   workflow_dispatch:
     inputs:
       release_tag:
-        description: 'Tag name for release'
+        description: 'Tag name'
         required: true
       release_name:
         description: 'Release name'
