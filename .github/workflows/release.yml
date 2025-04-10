@@ -1,0 +1,49 @@
+name: Format & Release
+
+on:
+  push:
+    branches:
+      - test-github-actions
+
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Tag name for release'
+        required: true
+      release_name:
+        description: 'Release name'
+        required: true
+
+jobs:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Prettier
+        run: npm install prettier --save-dev
+
+      - name: Run Prettier
+        run: npx prettier "**/*.js" --check
+
+  release:
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.event.inputs.release_tag }}
+          name: ${{ github.event.inputs.release_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
