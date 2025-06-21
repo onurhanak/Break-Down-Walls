@@ -4,122 +4,61 @@
         <meta charset="UTF-8" />
         <meta http-equiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link
-            href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-            rel="stylesheet"
-        />
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
         <title>Preferences</title>
     </head>
 
     <body class="bg-gray-800 flex justify-center items-center h-screen">
-        <form
-            id="settingsForm"
-            class="bg-gray-700 text-white p-8 rounded-lg shadow-lg w-full max-w-md"
-        >
-            <p class="text-lg font-semibold mb-4">
-                Please select which Sci-hub mirror to use:
-            </p>
+        <form id="settingsForm" class="bg-gray-700 text-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <p class="text-lg font-semibold mb-4">Please select which Sci-hub mirror to use:</p>
             <div class="mb-4">
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="scihub-mirror"
-                        value="https://sci-hub.se/"
-                        class="form-radio text-blue-600"
-                    />
+                    <input type="radio" name="scihub-mirror" value="https://sci-hub.se/" class="form-radio text-blue-600" />
                     <span class="ml-2">sci-hub.se</span>
                 </label>
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="scihub-mirror"
-                        checked
-                        value="http://sci-hub.ru/"
-                        class="form-radio text-blue-600"
-                    />
+                    <input type="radio" name="scihub-mirror" checked value="http://sci-hub.ru/" class="form-radio text-blue-600" />
                     <span class="ml-2">sci-hub.ru</span>
                 </label>
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="scihub-mirror"
-                        value="http://sci-hub.st/"
-                        class="form-radio text-blue-600"
-                    />
+                    <input type="radio" name="scihub-mirror" value="http://sci-hub.st/" class="form-radio text-blue-600" />
                     <span class="ml-2">sci-hub.st</span>
                 </label>
             </div>
 
-            <p class="text-lg font-semibold mb-4 mt-6">
-                Please select which Library Genesis mirror to use:
-            </p>
+            <p class="text-lg font-semibold mb-4 mt-6">Please select which Library Genesis mirror to use:</p>
             <div class="mb-6">
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="libgen-mirror"
-                        checked
-                        value="https://libgen.is/"
-                        class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">libgen.is</span>
+                    <input type="radio" name="libgen-mirror" checked value="https://libgen.gs/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.gs</span>
                 </label>
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="libgen-mirror"
-                        value="http://libgen.st/"
-                        class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">libgen.st</span>
+                    <input type="radio" name="libgen-mirror" value="http://libgen.vg/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.vg</span>
                 </label>
                 <label class="flex items-center mb-2">
-                    <input
-                        type="radio"
-                        name="libgen-mirror"
-                        value="http://library.lol/"
-                        class="form-radio text-blue-600"
-                    />
-                    <span class="ml-2">library.lol</span>
+                    <input type="radio" name="libgen-mirror" value="http://libgen.li/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.li</span>
                 </label>
             </div>
             <div class="mb-6">
                 <label class="flex items-center mb-2">
-                    <input
-                        type="checkbox"
-                        name="annas-archive"
-                        value="true"
-                        class="form-checkbox text-blue-600"
-                    />
-                    <span class="ml-2"
-                        >Use Anna's Archive instead of Library Genesis</span
-                    >
+                    <input type="checkbox" name="annas-archive" value="true" class="form-checkbox text-blue-600" />
+                    <span class="ml-2">Use Anna's Archive instead of Library Genesis</span>
                 </label>
             </div>
 
             <div class="mb-6">
                 <label class="flex items-center mb-2">
-                    <input
-                        type="checkbox"
-                        name="openInTheCurrentTab"
-                        value="true"
-                        class="form-checkbox text-blue-600"
-                    />
+                    <input type="checkbox" name="openInTheCurrentTab" value="true" class="form-checkbox text-blue-600" />
                     <span class="ml-2">Open new pages in the current tab</span>
                 </label>
             </div>
 
             <div class="mb-6">
                 <label class="flex items-center mb-2">
-                    <input
-                        type="checkbox"
-                        name="useNexus"
-                        value="false"
-                        class="form-checkbox text-blue-600"
-                    />
-                    <span class="ml-2"
-                        >Try Nexus if Sci-hub does not have the articles.</span
-                    >
+                    <input type="checkbox" name="useNexus" value="false" class="form-checkbox text-blue-600" />
+                    <span class="ml-2">Try Nexus if Sci-hub does not have the articles.</span>
                 </label>
             </div>
 
@@ -129,9 +68,7 @@
             >
                 Save
             </button>
-            <div class="notification mt-4 p-2 text-sm text-green-500 hidden">
-                Settings updated!
-            </div>
+            <div class="notification mt-4 p-2 text-sm text-green-500 hidden">Settings updated!</div>
         </form>
         <script src="options.js"></script>
     </body>
