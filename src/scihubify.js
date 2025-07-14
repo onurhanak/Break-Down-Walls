@@ -1,46 +1,27 @@
-// UTILITIES
+// scihubify.js
 
-// constants
+// REGEX CONSTANTS
 const amazonRegex = /dp\/\d{10}/;
 const doiRegex = /10\.\d{4,9}\/[-._;()/:A-Z0-9]+/gi;
-const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
+const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/i;
 
 const getMirror = async () => {
   try {
     const storage = await browser.storage.sync.get([
-      "annasArchive",
-      "scihubMirror",
-      "libgenMirror",
+      "articleSource",
+      "bookSource",
     ]);
-    const { scihubMirror, libgenMirror } = storage;
-
-    // convert str to bool
-    const useAnnasArchive = storage.annasArchive === "true";
-
-    if (useAnnasArchive) {
-      return [
-        scihubMirror || "https://sci-hub.ru",
-        "https://annas-archive.org/",
-      ];
-    } else {
-      return [
-        scihubMirror || "https://sci-hub.ru/",
-        libgenMirror || "https://libgen.li/",
-      ];
-    }
+    const { articleSource, bookSource } = storage;
+    return [articleSource, bookSource];
   } catch (error) {
-    console.log(`Error: ${error}`);
-    return ["https://sci-hub.se/", "https://libgen.li/"];
+    console.error("Error getting mirror sources:", error);
+    return [null, null];
   }
 };
 
 const openNewTab = async (url) => {
   const storage = await browser.storage.sync.get(["openInTheCurrentTab"]);
-  var openInTheCurrentTab = storage.openInTheCurrentTab == "true";
-
-  if (openInTheCurrentTab === undefined) {
-    openInTheCurrentTab = false; // def value
-  }
+  let openInTheCurrentTab = storage.openInTheCurrentTab === "true";
 
   if (openInTheCurrentTab) {
     browser.tabs.update({ url });
@@ -49,7 +30,6 @@ const openNewTab = async (url) => {
   }
 };
 
-// shows a notification with the given message
 const showNotification = (message) => {
   browser.notifications.create({
     type: "basic",
@@ -69,7 +49,6 @@ function getActiveTabUrl() {
   });
 }
 
-// utility to get ISBN from page source
 function findLongestString(arr) {
   let longestString = "";
   for (const element of arr) {
@@ -80,26 +59,21 @@ function findLongestString(arr) {
   return longestString;
 }
 
-// script to return proper URLs
 const handlePDFUrl = async (data, isDoi) => {
-  const [scihubMirror, libgenMirror] = await getMirror();
+  const [articleSource, _] = await getMirror();
   if (isDoi) {
-    const nexusURL = `https://libstc.cc/#/?q=${data}&p=1&ds=false`;
-    const scihubURL = `${scihubMirror}${data}`;
-    return [nexusURL, scihubURL];
+    return `${articleSource}${data}`;
   } else {
-    const openLibraryApiUrl = `https://openlibrary.org/isbn/${data}.json`;
-    return [openLibraryApiUrl];
+    return `https://openlibrary.org/isbn/${data}.json`;
   }
 };
 
-// script to get ISBN from Goodreads or Google Books
 const getISBNFromTab = async (tabId, script) => {
   try {
-    let result = await browser.tabs.executeScript(tabId, { code: script });
-    let resultArr = result[0];
-    let longest = findLongestString(resultArr);
-    isbn = longest.replace(/\D/g, "");
+    const result = await browser.tabs.executeScript(tabId, { code: script });
+    const resultArr = result[0];
+    const longest = findLongestString(resultArr);
+    const isbn = longest ? longest.replace(/\D/g, "") : null;
     return isbn || false;
   } catch (error) {
     console.error("Error executing content script:", error);
@@ -109,7 +83,7 @@ const getISBNFromTab = async (tabId, script) => {
 
 const getDOIFromTab = async (tabId, script) => {
   try {
-    let result = await browser.tabs.executeScript(tabId, { code: script });
+    const result = await browser.tabs.executeScript(tabId, { code: script });
     return result;
   } catch (error) {
     console.error("Error executing content script:", error);
@@ -121,33 +95,26 @@ const getISBNFromURL = async (url) => {
   if (amazonRegex.test(url)) {
     const isbn = url.match(amazonRegex)[0].replace("dp/", "");
     return isbn || null;
-  } else {
-    return null;
   }
+  return null;
 };
 
 const getDOIFromURL = async (url) => {
   if (doiRegex.test(url)) {
     const doi = url.match(doiRegex)[0];
     return doi || null;
-  } else {
-    return null;
   }
+  return null;
 };
 
-// get book title from open library
 async function openLibraryHandler(properURL) {
   try {
-    const response = await fetch(properURL[0]);
-
-    if (!response.ok) {
-      throw new Error("OpenLibrary response was not ok.");
-    }
+    const response = await fetch(properURL);
+    if (!response.ok) throw new Error("OpenLibrary response not ok.");
 
     const data = await response.json();
     let title = data["full_title"];
     let subtitle = data["subtitle"];
-
     title =
       title || (subtitle ? `${data["title"]} ${subtitle}` : data["title"]);
 
@@ -156,18 +123,12 @@ async function openLibraryHandler(properURL) {
       return null;
     }
 
-    const [scihubMirror, secondaryMirror] = await getMirror();
-
-    let searchURL;
-    if (secondaryMirror.includes("annas-archive.org")) {
-      // Format for Anna's Archive
-      searchURL = `https://annas-archive.org/search?q=${encodeURIComponent(title)}`;
+    const [_, bookSource] = await getMirror();
+    if (bookSource.includes("annas-archive.org")) {
+      return `https://annas-archive.org/search?q=${encodeURIComponent(title)}`;
     } else {
-      // Format for Library Genesis
-      searchURL = `${secondaryMirror}index.php?req=${encodeURIComponent(title)}&columns[]=t&columns[]=a&columns[]=s&columns[]=y&columns[]=p&columns[]=i&objects[]=f&objects[]=e&objects[]=s&objects[]=a&objects[]=p&objects[]=w&topics[]=l&topics[]=c&topics[]=f&topics[]=a&topics[]=m&topics[]=r&topics[]=s&res=100&filesuns=all`;
+      return `${bookSource}index.php?req=${encodeURIComponent(title)}&columns[]=t&columns[]=a&columns[]=s&columns[]=y&columns[]=p&columns[]=i&objects[]=f&objects[]=e&objects[]=s&objects[]=a&objects[]=p&objects[]=w&topics[]=l&topics[]=c&topics[]=f&topics[]=a&topics[]=m&topics[]=r&topics[]=s&res=100&filesuns=all`;
     }
-
-    return searchURL;
   } catch (error) {
     console.log(error);
     showNotification("Could not acquire data from Open Library.");
@@ -176,19 +137,21 @@ async function openLibraryHandler(properURL) {
 }
 
 async function fetchSciHubDOI(url) {
-  const sciHubURL = `https://sci-hub.se/${url}`;
-  const response = await fetch(sciHubURL);
-  if (response.ok) {
-    const text = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(text, "text/html");
-    const doiElement = doc.getElementById("doi");
-    if (doiElement) {
-      const doiText = doiElement.textContent.trim();
-      if (doiText) {
-        return doiText;
+  try {
+    const sciHubURL = `https://sci-hub.se/${url}`;
+    const response = await fetch(sciHubURL);
+    if (response.ok) {
+      const text = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(text, "text/html");
+      const doiElement = doc.getElementById("doi");
+      if (doiElement) {
+        const doiText = doiElement.textContent.trim();
+        if (doiText) return doiText;
       }
     }
+  } catch (e) {
+    console.error("Error fetching DOI from Sci-Hub:", e);
   }
   return null;
 }
@@ -201,40 +164,31 @@ async function urlHandler(url, tabID) {
       return null;
     }
     const properURL = await handlePDFUrl(isbn, false);
-    const finalURL = await openLibraryHandler(properURL);
-    return finalURL || null;
+    return await openLibraryHandler(properURL);
   } else if (url.includes("books.google")) {
     const isbn = await getISBNFromTab(tabID, googleBooksScript);
     const properURL = await handlePDFUrl(isbn, false);
-    const finalURL = await openLibraryHandler(properURL);
-    return finalURL || null;
+    return await openLibraryHandler(properURL);
   } else if (url.includes("amazon")) {
     const isbn = await getISBNFromURL(url);
     const properURL = await handlePDFUrl(isbn, false);
-    const finalURL = await openLibraryHandler(properURL);
-    return finalURL || null;
+    return await openLibraryHandler(properURL);
   } else {
     const doi = await getDOIFromURL(url);
     if (doi) {
-      const [nexusURL, scihubURL] = await handlePDFUrl(doi, true);
-      return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
+      return await handlePDFUrl(doi, true);
     } else {
       const scihubDOI = await fetchSciHubDOI(url);
       if (scihubDOI) {
-        const [nexusURL, scihubURL] = await handlePDFUrl(scihubDOI, true);
-        return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
+        return await handlePDFUrl(scihubDOI, true);
       } else {
         const pageDOIArray = await getDOIFromTab(tabID, doiExtractorScript);
         const pageDOI =
           Array.isArray(pageDOIArray) && pageDOIArray.length > 0
             ? pageDOIArray[0]
             : null;
-
-        console.log("Extracted DOI:", pageDOI);
-
         if (pageDOI) {
-          const [nexusURL, scihubURL] = await handlePDFUrl(pageDOI, true);
-          return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
+          return await handlePDFUrl(pageDOI, true);
         } else {
           showNotification("Could not find DOI or ISBN.");
           return null;
@@ -247,8 +201,6 @@ async function urlHandler(url, tabID) {
 async function checkScihub(scihubURL) {
   try {
     const response = await fetch(scihubURL);
-
-    // Check if the response status is 403 (captcha)
     if (response.status === 403) {
       showNotification("Complete Sci-hub captcha challenge.");
       return true;
@@ -260,21 +212,17 @@ async function checkScihub(scihubURL) {
     const saveBtn = doc.querySelector('button[onclick^="location.href=\'"]');
 
     if (saveBtn) {
-      var saveBtnHref = saveBtn.getAttribute("onclick").match(/'([^']+)'/)[1];
-      saveBtnHref = "https://sci-hub.ru" + saveBtnHref;
-      const saveBtnResponse = await fetch(saveBtnHref);
+      let saveBtnHref = saveBtn.getAttribute("onclick").match(/'([^']+)'/)[1];
+      const origin = new URL(scihubURL).origin;
+      saveBtnHref = origin + saveBtnHref;
 
-      if (saveBtnResponse.status === 403) {
-        console.warn("Sci-Hub PDF link returned a 403 Forbidden error.");
-        return false;
-      } else if (saveBtnResponse.status === 404) {
-        // Sci-Hub returned a 404 Not Found page, try Nexus instead
+      const saveBtnResponse = await fetch(saveBtnHref);
+      if (saveBtnResponse.status === 403 || saveBtnResponse.status === 404) {
         return false;
       } else {
         return true;
       }
     }
-
     return false;
   } catch (error) {
     console.error("Error checking Sci-Hub:", error);
@@ -283,37 +231,30 @@ async function checkScihub(scihubURL) {
 }
 
 async function run(url, tabID) {
-  const result = await urlHandler(url, tabID);
-  if (Array.isArray(result)) {
-    // It returned an array, which means it's a DOI URL and has two values
-    const [nexusURL, scihubURL] = result;
+  if (!url || !tabID) {
+    showNotification("Invalid tab or URL.");
+    return;
+  }
 
-    const isAvailableFromScihub = await checkScihub(scihubURL);
-    if (isAvailableFromScihub) {
-      openNewTab(scihubURL);
+  const result = await urlHandler(url, tabID);
+  if (!result) return;
+
+  if (result.includes("sci-hub")) {
+    const isAvailable = await checkScihub(result);
+    if (isAvailable) {
+      openNewTab(result);
     } else {
-      const useNexus = await browser.storage.sync.get(["useNexus"]);
-      console.log(useNexus);
-      if (useNexus === true) {
-        showNotification("PDF not available on Sci-hub, trying Nexus.");
-        openNewTab(nexusURL);
-      } else {
-        showNotification("PDF not available on Sci-hub"); //, trying Nexus.");
-      }
+      showNotification("PDF not available on Sci-hub.");
     }
   } else {
-    // it returned a single value, which means it's a goodreads, Google Books, or Amazon URL
-    const bookURL = result;
-    if (bookURL) {
-      openNewTab(bookURL);
-    }
+    openNewTab(result);
   }
 }
 
 async function main() {
   const [urlTemp, tabID] = await getActiveTabUrl();
   if (urlTemp) {
-    const url = urlTemp.replace("/full", "").replace("/text", ""); // edge cases
+    const url = urlTemp.replace("/full", "").replace("/text", "");
     run(url, tabID);
   }
 }
@@ -328,7 +269,6 @@ const goodreadsContentScript = `
   if (buttonToClick) {
     buttonToClick.click();
   }
-
   elements = document.querySelectorAll('.DescListItem');
   isbn = null;
 
@@ -393,68 +333,10 @@ const googleBooksScript = `
   ISBN;
 `;
 
-// LISTENERS AND CONTEXT MENU
-
-// Menu
-// Firefox Desktop
-if (browser.menus) {
-  browser.menus.create({
-    id: "download",
-    title: "Download PDF",
-    contexts: ["link"],
-  });
-
-  // listener for the menu item click
-  browser.menus.onClicked.addListener(async (info) => {
-    if (info.menuItemId === "download") {
-      const link = info.linkUrl;
-      if (link.includes("goodreads.com") || link.includes("books.google")) {
-        showNotification(
-          "Download Not Available: Open the page and use the menubar icon.",
-        );
-      } else {
-        run(link, null);
-      }
-    }
-  });
-} else {
-  // pass
-}
-
-// listener for when the browser-action is clicked
 browser.browserAction.onClicked.addListener(main);
 
-// listener for keyboard shortcut
 browser.commands.onCommand.addListener((command) => {
   if (command === "trigger-action") {
     main();
   }
 });
-
-/*
-function checkForUpdates() {
-  // version URL
-  const versionUrl =
-    "https://raw.githubusercontent.com/onurhanak/Break-Down-Walls/main/VERSION";
-
-  // fetch
-  fetch(versionUrl)
-    .then((response) => response.text())
-    .then((latestVersion) => {
-      const currentVersion = browser.runtime.getManifest().version;
-
-      if (currentVersion !== latestVersion) {
-        showNotification(
-          "A new version of the extension is available. Please update to the latest version.",
-        );
-      }
-    })
-    .catch((error) =>
-      console.error("Error checking for extension updates:", error),
-    );
-}
-
-checkForUpdates();
-
-setInterval(checkForUpdates, 86400000); // check for new version everyday
-*/
