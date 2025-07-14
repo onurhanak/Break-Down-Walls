@@ -1,21 +1,15 @@
 const saveOptions = (e) => {
   e.preventDefault();
 
-  const scihubMirrorValue = document.querySelector(
-    "input[name='scihub-mirror']:checked",
+  const articleSourceValue = document.querySelector(
+    "input[name='articleSource']:checked",
   ).value;
-  browser.storage.sync.set({ scihubMirror: scihubMirrorValue });
+  browser.storage.sync.set({ articleSource: articleSourceValue });
 
-  const libgenMirrorValue = document.querySelector(
-    "input[name='libgen-mirror']:checked",
+  const bookSourceValue = document.querySelector(
+    "input[name='bookSource']:checked",
   ).value;
-  browser.storage.sync.set({ libgenMirror: libgenMirrorValue });
-
-  const annasArchiveCheckbox = document.querySelector(
-    "input[name='annas-archive']",
-  );
-  const useAnnasArchiveValue = annasArchiveCheckbox.checked ? "true" : "false";
-  browser.storage.sync.set({ annasArchive: useAnnasArchiveValue });
+  browser.storage.sync.set({ bookSource: bookSourceValue });
 
   const openInTheCurrentTabCheckBox = document.querySelector(
     "input[name='openInTheCurrentTab']",
@@ -24,43 +18,29 @@ const saveOptions = (e) => {
     ? "true"
     : "false";
   browser.storage.sync.set({ openInTheCurrentTab: openInTheCurrentTabValue });
-
-  const useNexusCheckBox = document.querySelector("input[name='useNexus'");
-  const useNexusValue = useNexusCheckBox.checked ? "true" : "false";
-  browser.storage.sync.set({ useNexus: useNexusValue });
 };
 
 const restoreOptions = async () => {
   try {
-    const { scihubMirror } = await browser.storage.sync.get("scihubMirror");
-    if (scihubMirror) {
+    const { articleSource } = await browser.storage.sync.get("articleSource");
+    if (articleSource) {
       document.querySelector(
-        `input[name='scihub-mirror'][value='${scihubMirror}']`,
+        `input[name='articleSource'][value='${articleSource}']`,
       ).checked = true;
     }
   } catch (error) {
-    console.log(`Error restoring Sci-Hub mirror: ${error}`);
+    console.log(`Error restoring article source: ${error}`);
   }
 
   try {
-    const { libgenMirror } = await browser.storage.sync.get("libgenMirror");
-    if (libgenMirror) {
+    const { bookSource } = await browser.storage.sync.get("bookSource");
+    if (bookSource) {
       document.querySelector(
-        `input[name='libgen-mirror'][value='${libgenMirror}']`,
+        `input[name='bookSource'][value='${bookSource}']`,
       ).checked = true;
     }
   } catch (error) {
-    console.log(`Error restoring LibGen mirror: ${error}`);
-  }
-
-  try {
-    const { annasArchive } = await browser.storage.sync.get("annasArchive");
-    if (annasArchive !== undefined) {
-      document.querySelector("input[name='annas-archive']").checked =
-        annasArchive === "true";
-    }
-  } catch (error) {
-    console.log(`Error restoring Anna's Archive setting: ${error}`);
+    console.log(`Error restoring book source: ${error}`);
   }
 
   try {
@@ -73,16 +53,6 @@ const restoreOptions = async () => {
     }
   } catch (error) {
     console.log(`Error restoring 'Open in Current Tab' setting: ${error}`);
-  }
-
-  try {
-    const { useNexus } = await browser.storage.sync.get("useNexus");
-    if (useNexus !== undefined) {
-      document.querySelector("input[name='useNexus']").checked =
-        useNexus === "true";
-    }
-  } catch (error) {
-    console.log(`Error restoring 'Use Nexus' setting: ${error}`);
   }
 };
 
