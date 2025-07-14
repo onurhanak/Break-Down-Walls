@@ -7,16 +7,26 @@ const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/;
 
 const getMirror = async () => {
   try {
-    const storage = await browser.storage.sync.get(["annasArchive", "scihubMirror", "libgenMirror"]);
+    const storage = await browser.storage.sync.get([
+      "annasArchive",
+      "scihubMirror",
+      "libgenMirror",
+    ]);
     const { scihubMirror, libgenMirror } = storage;
 
     // convert str to bool
     const useAnnasArchive = storage.annasArchive === "true";
 
     if (useAnnasArchive) {
-      return [scihubMirror || "https://sci-hub.ru", "https://annas-archive.org/"];
+      return [
+        scihubMirror || "https://sci-hub.ru",
+        "https://annas-archive.org/",
+      ];
     } else {
-      return [scihubMirror || "https://sci-hub.ru/", libgenMirror || "https://libgen.li/"];
+      return [
+        scihubMirror || "https://sci-hub.ru/",
+        libgenMirror || "https://libgen.li/",
+      ];
     }
   } catch (error) {
     console.log(`Error: ${error}`);
@@ -138,7 +148,8 @@ async function openLibraryHandler(properURL) {
     let title = data["full_title"];
     let subtitle = data["subtitle"];
 
-    title = title || (subtitle ? `${data["title"]} ${subtitle}` : data["title"]);
+    title =
+      title || (subtitle ? `${data["title"]} ${subtitle}` : data["title"]);
 
     if (!title) {
       showNotification("Book not found.");
@@ -214,7 +225,10 @@ async function urlHandler(url, tabID) {
         return nexusURL && scihubURL ? [nexusURL, scihubURL] : [null, null];
       } else {
         const pageDOIArray = await getDOIFromTab(tabID, doiExtractorScript);
-        const pageDOI = Array.isArray(pageDOIArray) && pageDOIArray.length > 0 ? pageDOIArray[0] : null;
+        const pageDOI =
+          Array.isArray(pageDOIArray) && pageDOIArray.length > 0
+            ? pageDOIArray[0]
+            : null;
 
         console.log("Extracted DOI:", pageDOI);
 
@@ -395,7 +409,9 @@ if (browser.menus) {
     if (info.menuItemId === "download") {
       const link = info.linkUrl;
       if (link.includes("goodreads.com") || link.includes("books.google")) {
-        showNotification("Download Not Available: Open the page and use the menubar icon.");
+        showNotification(
+          "Download Not Available: Open the page and use the menubar icon.",
+        );
       } else {
         run(link, null);
       }
