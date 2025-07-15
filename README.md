@@ -51,6 +51,3 @@ Chromium based browser support is not planned, I do not have the time to support
 [goodreadstutorial]: assets/GoodreadsLibgen.webp
 [gbookstutorial]: assets/GBooksLibgen.webp
 [scihubtutorial]: assets/Scihub.webp
-[annasarchivetutorial]: assets/AnnasArchive.webp
-[stars-shield]: https://img.shields.io/github/stars/othneildrew/Best-README-Template.svg?style=for-the-badge
-[stars-url]: https://github.com/othneildrew/Best-README-Template/stargazers
