@@ -62,6 +62,7 @@ function findLongestString(arr) {
 const handlePDFUrl = async (data, isDoi) => {
   const [articleSource, _] = await getMirror();
   if (isDoi) {
+
     return `${articleSource}${data}`;
   } else {
     return `https://openlibrary.org/isbn/${data}.json`;
@@ -130,7 +131,6 @@ async function openLibraryHandler(properURL) {
       return `${bookSource}index.php?req=${encodeURIComponent(title)}&columns[]=t&columns[]=a&columns[]=s&columns[]=y&columns[]=p&columns[]=i&objects[]=f&objects[]=e&objects[]=s&objects[]=a&objects[]=p&objects[]=w&topics[]=l&topics[]=c&topics[]=f&topics[]=a&topics[]=m&topics[]=r&topics[]=s&res=100&filesuns=all`;
     }
   } catch (error) {
-    console.log(error);
     showNotification("Could not acquire data from Open Library.");
     return null;
   }
@@ -209,10 +209,9 @@ async function checkScihub(scihubURL) {
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-    const saveBtn = doc.querySelector('button[onclick^="location.href=\'"]');
-
+		const saveBtn = doc.querySelector('div[class="download"] a')
     if (saveBtn) {
-      let saveBtnHref = saveBtn.getAttribute("onclick").match(/'([^']+)'/)[1];
+      let saveBtnHref = saveBtn.getAttribute("href")
       const origin = new URL(scihubURL).origin;
       saveBtnHref = origin + saveBtnHref;
 
@@ -286,12 +285,12 @@ const goodreadsContentScript = `
 
 const doiExtractorScript = `
 
-    const doiRegex = /10\\.\\d{4,9}\\/[-._;()/:A-Z0-9]+/gi;
+    var doiRegex = /10\\.\\d{4,9}\\/[-._;()/:A-Z0-9]+/gi;
 
     function extractDOI() {
-        const links = [...document.querySelectorAll("a[href]")];
+        var links = [...document.querySelectorAll("a[href]")];
 
-        const firstDOILink = links
+        var firstDOILink = links
             .map(link => link.href)
             .find(href => doiRegex.test(href));
 
@@ -299,7 +298,7 @@ const doiExtractorScript = `
             return firstDOILink;
         }
 
-        const textMatch = document.body.innerText.match(doiRegex);
+        var textMatch = document.body.innerText.match(doiRegex);
 
         if (textMatch && textMatch.length > 0) {
             return textMatch[0];
