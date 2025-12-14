@@ -28,36 +28,51 @@ document
   });
 
 const restoreOptions = async () => {
-  try {
-    const { articleSource } = await browser.storage.sync.get("articleSource");
-    const articleSelector = articleSource
-      ? `input[name='articleSource'][value='${articleSource}']`
-      : `input[name='articleSource'][value='http://sci-hub.ru/']`;
-    const articleRadio = document.querySelector(articleSelector);
-    if (articleRadio) articleRadio.checked = true;
-  } catch (error) {
-    console.log(`Error restoring article source: ${error}`);
-  }
+  const defaults = {
+    articleSource: 'http://sci-hub.ru/',
+    bookSource: 'https://annas-archive.org/',
+    openInTheCurrentTab: false
+  };
 
   try {
-    const { bookSource } = await browser.storage.sync.get("bookSource");
-    const bookSelector = bookSource
-      ? `input[name='bookSource'][value='${bookSource}']`
-      : `input[name='bookSource'][value='https://annas-archive.org/']`;
-    const bookRadio = document.querySelector(bookSelector);
-    if (bookRadio) bookRadio.checked = true;
-  } catch (error) {
-    console.log(`Error restoring book source: ${error}`);
-  }
+    const stored = await browser.storage.sync.get([
+      'articleSource',
+      'bookSource',
+      'openInTheCurrentTab'
+    ]);
 
-  try {
-    const { openInTheCurrentTab } = await browser.storage.sync.get(
-      "openInTheCurrentTab",
+    // defaults for any missing values
+    const toSave = {};
+    if (stored.articleSource === undefined) {
+      toSave.articleSource = defaults.articleSource;
+    }
+    if (stored.bookSource === undefined) {
+      toSave.bookSource = defaults.bookSource;
+    }
+    if (stored.openInTheCurrentTab === undefined) {
+      toSave.openInTheCurrentTab = defaults.openInTheCurrentTab;
+    }
+
+    if (Object.keys(toSave).length > 0) {
+      await browser.storage.sync.set(toSave);
+      Object.assign(stored, toSave);
+    }
+
+    const articleRadio = document.querySelector(
+      `input[name='articleSource'][value='${stored.articleSource}']`
     );
+    if (articleRadio) articleRadio.checked = true;
+
+    const bookRadio = document.querySelector(
+      `input[name='bookSource'][value='${stored.bookSource}']`
+    );
+    if (bookRadio) bookRadio.checked = true;
+
     document.querySelector("input[name='openInTheCurrentTab']").checked =
-      !!openInTheCurrentTab;
+      !!stored.openInTheCurrentTab;
+
   } catch (error) {
-    console.log(`Error restoring openInTheCurrentTab: ${error}`);
+    console.log('Error restoring options:', error);
   }
 };
 
