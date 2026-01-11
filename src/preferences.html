@@ -1,126 +1,123 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
-    <title>Preferences</title>
-  </head>
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet" />
+        <title>Preferences</title>
+    </head>
 
-  <body class="bg-gray-800 flex justify-center items-center h-screen">
-    <form
-      id="settingsForm"
-      class="bg-gray-700 text-white p-8 rounded-lg shadow-lg w-full max-w-md"
-    >
-      <p class="text-lg font-semibold mb-4">Select article source:</p>
-      <div class="mb-4">
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="articleSource"
-            value="https://sci-hub.se/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">sci-hub.se</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="articleSource"
-            value="http://sci-hub.ru/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">sci-hub.ru</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="articleSource"
-            value="http://sci-hub.st/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">sci-hub.st</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="articleSource"
-            value="https://annas-archive.org/scidb/"
-            class="form-radio text-blue-600"
-            checked
-          />
-          <span class="ml-2">annas-archive.org</span>
-        </label>
-      </div>
+    <body class="bg-gray-800 flex justify-center items-center h-screen">
+        <form id="settingsForm" class="bg-gray-700 text-white p-8 rounded-lg shadow-lg w-full max-w-md">
+            <p class="text-lg font-semibold mb-4">Select article source:</p>
+            <div class="mb-4">
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="articleSource" value="https://sci-hub.se/" class="form-radio text-blue-600" />
+                    <span class="ml-2">sci-hub.se</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="articleSource" value="http://sci-hub.ru/" class="form-radio text-blue-600" />
+                    <span class="ml-2">sci-hub.ru</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="articleSource" value="http://sci-hub.st/" class="form-radio text-blue-600" />
+                    <span class="ml-2">sci-hub.st</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="articleSource" value="https://annas-archive.org/scidb/" class="form-radio text-blue-600" checked />
+                    <span class="ml-2">annas-archive.org</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input
+                        type="radio"
+                        name="articleSource"
+                        value="custom-scihub"
+                        id="articleSourceCustomScihubRadio"
+                        class="form-radio text-blue-600"
+                    />
+                    <span class="ml-2">Custom Sci-Hub (e.g., https://sci-hub.ru/):</span>
+                </label>
+                <input
+                    type="text"
+                    id="articleSourceCustomScihubInput"
+                    placeholder="Enter URL"
+                    class="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:outline-none focus:border-blue-500 mb-2"
+                />
+                <label class="flex items-center mb-2">
+                    <input
+                        type="radio"
+                        name="articleSource"
+                        value="custom-annas"
+                        id="articleSourceCustomAnnasRadio"
+                        class="form-radio text-blue-600"
+                    />
+                    <span class="ml-2">Custom Anna's Archive (e.g., https://annas-archive.li/):</span>
+                </label>
+                <input
+                    type="text"
+                    id="articleSourceCustomAnnasInput"
+                    placeholder="Enter URL"
+                    class="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:outline-none focus:border-blue-500 mb-2"
+                />
+            </div>
 
-      <p class="text-lg font-semibold mb-4 mt-6">Select book source:</p>
-      <div class="mb-6">
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="bookSource"
-            value="https://libgen.gs/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">libgen.gs</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="bookSource"
-            value="http://libgen.vg/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">libgen.vg</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="bookSource"
-            value="http://libgen.li/"
-            class="form-radio text-blue-600"
-          />
-          <span class="ml-2">libgen.li</span>
-        </label>
-        <label class="flex items-center mb-2">
-          <input
-            type="radio"
-            name="bookSource"
-            value="https://annas-archive.org/"
-            class="form-radio text-blue-600"
-            checked
-          />
-          <span class="ml-2">annas-archive.org</span>
-        </label>
-      </div>
+            <p class="text-lg font-semibold mb-4 mt-6">Select book source:</p>
+            <div class="mb-6">
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="https://libgen.gs/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.gs</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="http://libgen.vg/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.vg</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="http://libgen.li/" class="form-radio text-blue-600" />
+                    <span class="ml-2">libgen.li</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="https://annas-archive.org/" class="form-radio text-blue-600" checked />
+                    <span class="ml-2">annas-archive.org</span>
+                </label>
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="custom-libgen" id="bookSourceCustomLibgenRadio" class="form-radio text-blue-600" />
+                    <span class="ml-2">Custom LibGen (e.g., https://libgen.li/):</span>
+                </label>
+                <input
+                    type="text"
+                    id="bookSourceCustomLibgenInput"
+                    placeholder="Enter URL"
+                    class="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:outline-none focus:border-blue-500 mb-2"
+                />
+                <label class="flex items-center mb-2">
+                    <input type="radio" name="bookSource" value="custom-annas" id="bookSourceCustomAnnasRadio" class="form-radio text-blue-600" />
+                    <span class="ml-2">Custom Anna's Archive (e.g., https://annas-archive.li/):</span>
+                </label>
+                <input
+                    type="text"
+                    id="bookSourceCustomAnnasInput"
+                    placeholder="Enter URL"
+                    class="w-full px-3 py-2 bg-gray-600 text-white rounded border border-gray-500 focus:outline-none focus:border-blue-500"
+                />
+            </div>
 
-      <div class="mb-6">
-        <label class="flex items-center mb-2">
-          <input
-            type="checkbox"
-            name="openInTheCurrentTab"
-            value="true"
-            class="form-checkbox text-blue-600"
-          />
-          <span class="ml-2">Open new pages in the current tab</span>
-        </label>
-      </div>
+            <div class="mb-6">
+                <label class="flex items-center mb-2">
+                    <input type="checkbox" name="openInTheCurrentTab" value="true" class="form-checkbox text-blue-600" />
+                    <span class="ml-2">Open new pages in the current tab</span>
+                </label>
+            </div>
 
-      <button
-        type="submit"
-        class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-      >
-        Save
-      </button>
+            <button
+                type="submit"
+                class="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+            >
+                Save
+            </button>
 
-      <div class="notification mt-4 p-2 text-sm text-green-500 hidden">
-        Settings updated!
-      </div>
-    </form>
-    <script src="options.js"></script>
-  </body>
+            <div class="notification mt-4 p-2 text-sm text-green-500 hidden">Settings updated!</div>
+        </form>
+        <script src="options.js"></script>
+    </body>
 </html>

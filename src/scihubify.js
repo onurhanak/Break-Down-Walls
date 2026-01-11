@@ -7,10 +7,7 @@ const isbnRegex = /^(?=(?:\D*\d){10}(?:(?:\D*\d){3})?$)[\d-]+$/i;
 
 const getMirror = async () => {
   try {
-    const storage = await browser.storage.sync.get([
-      "articleSource",
-      "bookSource",
-    ]);
+    const storage = await browser.storage.sync.get(["articleSource", "bookSource"]);
     const { articleSource, bookSource } = storage;
     return [articleSource, bookSource];
   } catch (error) {
@@ -62,8 +59,15 @@ function findLongestString(arr) {
 const handlePDFUrl = async (data, isDoi) => {
   const [articleSource, _] = await getMirror();
   if (isDoi) {
+    const isAnnasArchive =
+      articleSource.includes("annas-archive.org") ||
+      (!articleSource.includes("sci-hub.se") && !articleSource.includes("sci-hub.ru") && !articleSource.includes("sci-hub.st"));
 
-    return `${articleSource}${data}`;
+    if (isAnnasArchive) {
+      return `${articleSource}scidb/${data}`;
+    } else {
+      return `${articleSource}${data}`;
+    }
   } else {
     return `https://openlibrary.org/isbn/${data}.json`;
   }
@@ -116,8 +120,7 @@ async function openLibraryHandler(properURL) {
     const data = await response.json();
     let title = data["full_title"];
     let subtitle = data["subtitle"];
-    title =
-      title || (subtitle ? `${data["title"]} ${subtitle}` : data["title"]);
+    title = title || (subtitle ? `${data["title"]} ${subtitle}` : data["title"]);
 
     if (!title) {
       showNotification("Book not found.");
@@ -125,8 +128,12 @@ async function openLibraryHandler(properURL) {
     }
 
     const [_, bookSource] = await getMirror();
-    if (bookSource.includes("annas-archive.org")) {
-      return `https://annas-archive.org/search?q=${encodeURIComponent(title)}`;
+    const isAnnasArchive =
+      bookSource.includes("annas-archive.org") ||
+      (!bookSource.includes("libgen.gs") && !bookSource.includes("libgen.vg") && !bookSource.includes("libgen.li"));
+
+    if (isAnnasArchive) {
+      return `${bookSource}search?q=${encodeURIComponent(title)}`;
     } else {
       return `${bookSource}index.php?req=${encodeURIComponent(title)}&columns[]=t&columns[]=a&columns[]=s&columns[]=y&columns[]=p&columns[]=i&objects[]=f&objects[]=e&objects[]=s&objects[]=a&objects[]=p&objects[]=w&topics[]=l&topics[]=c&topics[]=f&topics[]=a&topics[]=m&topics[]=r&topics[]=s&res=100&filesuns=all`;
     }
@@ -183,10 +190,7 @@ async function urlHandler(url, tabID) {
         return await handlePDFUrl(scihubDOI, true);
       } else {
         const pageDOIArray = await getDOIFromTab(tabID, doiExtractorScript);
-        const pageDOI =
-          Array.isArray(pageDOIArray) && pageDOIArray.length > 0
-            ? pageDOIArray[0]
-            : null;
+        const pageDOI = Array.isArray(pageDOIArray) && pageDOIArray.length > 0 ? pageDOIArray[0] : null;
         if (pageDOI) {
           return await handlePDFUrl(pageDOI, true);
         } else {
@@ -209,9 +213,9 @@ async function checkScihub(scihubURL) {
     const html = await response.text();
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
-		const saveBtn = doc.querySelector('div[class="download"] a')
+    const saveBtn = doc.querySelector('div[class="download"] a');
     if (saveBtn) {
-      let saveBtnHref = saveBtn.getAttribute("href")
+      let saveBtnHref = saveBtn.getAttribute("href");
       const origin = new URL(scihubURL).origin;
       saveBtnHref = origin + saveBtnHref;
 
