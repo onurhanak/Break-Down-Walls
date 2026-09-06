@@ -1,13 +1,13 @@
 {
-  "description": "Adds a browser action icon to the toolbar. Click the button to attempt to open link in sci-hub or LibGen.",
+  "description": "Adds a browser action icon to the toolbar. Click the button to open the article or book on Anna's Archive.",
   "name": "Break Down the Walls",
   "manifest_version": 2,
-  "version": "1.7",
+  "version": "1.8.0",
   "icons": {
     "48": "graduate-hat.png"
   },
   "background": {
-    "scripts": ["scihubify.js"]
+    "scripts": ["background.js"]
   },
   "commands": {
     "trigger-action": {
